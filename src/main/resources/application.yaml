@@ -23,5 +23,15 @@ spring:
       ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+  ai:
+    openai:
+      api-key: ${GROQ_API_KEY}
+      base-url: https://api.groq.com/openai/v1
+      chat:
+        options:
+          model: openai/gpt-oss-20b
+          temperature: 1.0
+          options:
+            reasoning_effort: low
 redis:
   uri: ${REDIS_URI}
