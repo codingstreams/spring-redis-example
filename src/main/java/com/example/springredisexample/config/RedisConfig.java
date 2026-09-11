@@ -13,12 +13,15 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
 
 @Configuration
 public class RedisConfig {
+
+  public static final String CACHE_FINANCIAL_SUMMARIES = "financial_summaries";
+
   @Bean
   public RedisConnectionFactory redisConnectionFactory(@Value("${redis.uri}") String uri) {
     final var redisUri = RedisURI.create(uri);
@@ -49,12 +52,17 @@ public class RedisConfig {
 
   @Bean
   public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-    final var cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-        .entryTtl(Duration.ofHours(1))
+    final var defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+        .entryTtl(Duration.ofHours(1)) // Fallback TTL
+        .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.string()))
         .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.json()));
 
+    final var cacheConfigs = new HashMap<String, RedisCacheConfiguration>();
+    cacheConfigs.put(CACHE_FINANCIAL_SUMMARIES,  defaultConfig.entryTtl(Duration.ofMinutes(15)));
+
     return RedisCacheManager.builder(connectionFactory)
-        .cacheDefaults(cacheConfig)
+        .cacheDefaults(defaultConfig)
+        .withInitialCacheConfigurations(cacheConfigs)
         .build();
   }
 }
