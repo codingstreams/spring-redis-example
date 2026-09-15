@@ -1,3 +1,46 @@
 spring:
   application:
     name: spring-redis-example
+
+  mvc:
+    apiversion:
+      enabled: true
+      use:
+        header: "X-API-Version"
+
+      supported: 1.0,2.0
+      default: 1.0
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+    hikari:
+      pool-name: production-pool
+      maximum-pool-size: 5
+      minimum-idle: 3
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      data-source-properties:
+        prepareThreshold: 0
+        preparedStatementCacheQueries: 0
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  ai:
+    openai:
+      api-key: ${GROQ_API_KEY}
+      base-url: https://api.groq.com/openai/v1
+      chat:
+        options:
+          model: openai/gpt-oss-20b
+          temperature: 1.0
+          options:
+            reasoning_effort: low
+redis:
+  uri: ${REDIS_URI}
